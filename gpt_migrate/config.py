@@ -106,5 +106,4 @@ EXTENSION_TO_LANGUAGE = {
     'hs': 'Haskell',
     'jl': 'Julia',
     'nim': 'Nim',
-    'php': 'PHP',
 }
