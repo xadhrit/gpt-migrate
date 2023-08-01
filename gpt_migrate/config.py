@@ -23,6 +23,7 @@ GET_INTERNAL_DEPS = "p3_migrate/2_get_internal_deps"
 WRITE_MIGRATION = "p3_migrate/3_write_migration"
 ADD_DOCKER_REQUIREMENTS = "p3_migrate/4_add_docker_requirements"
 REFINE_DOCKERFILE = "p3_migrate/5_refine_target_docker"
+GET_FUNCTION_SIGNATURES = "p3_migrate/6_get_function_signatures"
 CREATE_TESTS = "p3_test/create_tests"
 DEBUG_DOCKERFILE = "p3_debug/debug_target_docker"
 IDENTIFY_ACTION = "p3_debug/identify_action"
@@ -72,6 +73,30 @@ INCLUDED_EXTENSIONS = (
 
     # TODO: add more
 )
+
+TREE_SITTER_REPO_STUB = "https://github.com/tree-sitter/tree-sitter-"
+
+EXTENSION_TO_TREE_SITTER_GRAMMAR_REPO = {
+    'py': TREE_SITTER_REPO_STUB + "python",
+    'js': TREE_SITTER_REPO_STUB + "javascript",
+    'java': TREE_SITTER_REPO_STUB + "java",
+    'rb': TREE_SITTER_REPO_STUB + "ruby",
+    'php': TREE_SITTER_REPO_STUB + "php",
+    'cs': TREE_SITTER_REPO_STUB + "c-sharp",
+    'go': TREE_SITTER_REPO_STUB + "go",
+    'rs': TREE_SITTER_REPO_STUB + "rust",
+    'cpp': TREE_SITTER_REPO_STUB + "cpp",
+    'cc': TREE_SITTER_REPO_STUB + "cpp",
+    'cxx': TREE_SITTER_REPO_STUB + "cpp",
+    'c': TREE_SITTER_REPO_STUB + "c",
+    'swift': TREE_SITTER_REPO_STUB + "swift",
+    'scala': TREE_SITTER_REPO_STUB + "scala",
+    'ts': TREE_SITTER_REPO_STUB + "typescript",
+    'tsx': TREE_SITTER_REPO_STUB + "typescript",
+    'jsx': TREE_SITTER_REPO_STUB + "javascript",
+    'hs': TREE_SITTER_REPO_STUB + "haskell",
+    'jl': TREE_SITTER_REPO_STUB + "julia",
+}
 
 EXTENSION_TO_LANGUAGE = {
     'py': 'Python',

@@ -2,6 +2,7 @@ import typer
 from utils import detect_language, build_directory_structure
 import os
 import time as time
+from collections import defaultdict
 
 from ai import AI
 
@@ -13,7 +14,7 @@ from steps.debug import debug_testfile, debug_error
 app = typer.Typer()
 
 class Globals:
-    def __init__(self, sourcedir, targetdir, sourcelang, targetlang, sourceentry, source_directory_structure, operating_system, testfiles, sourceport, targetport, ai):
+    def __init__(self, sourcedir, targetdir, sourcelang, targetlang, sourceentry, source_directory_structure, operating_system, testfiles, sourceport, targetport, guidelines, ai):
         self.sourcedir = sourcedir
         self.targetdir = targetdir
         self.sourcelang = sourcelang
@@ -24,6 +25,7 @@ class Globals:
         self.testfiles = testfiles
         self.sourceport = sourceport
         self.targetport = targetport
+        self.guidelines = guidelines
         self.ai = ai
         
 
@@ -40,6 +42,7 @@ def main(
         testfiles: str = typer.Option("app.py", help="Comma-separated list of files that have functions to be tested. For instance, this could be an app.py or main.py file for Python app where your REST endpoints are. Include the full relative path."),
         sourceport: int = typer.Option(None, help="(Optional) port for testing the unit tests file against the original app."),
         targetport: int = typer.Option(8080, help="Port for testing the unit tests file against the migrated app."),
+        guidelines: str = typer.Option("", help="Stylistic or small functional guidelines that you'd like to be followed during the migration. For instance, \"Use tabs, not spaces\"."),
         step: str = typer.Option("all", help="Step to run. Options are 'setup', 'migrate', 'test', 'all'.")
     ):
 
@@ -68,7 +71,7 @@ def main(
         sourceentry = typer.prompt("Unable to find the entrypoint file. Please enter it manually. This must be a file relative to the source directory.")
 
     source_directory_structure = build_directory_structure(sourcedir)
-    globals = Globals(sourcedir, targetdir, sourcelang, targetlang, sourceentry, source_directory_structure, operating_system, testfiles, sourceport, targetport, ai)
+    globals = Globals(sourcedir, targetdir, sourcelang, targetlang, sourceentry, source_directory_structure, operating_system, testfiles, sourceport, targetport, guidelines, ai)
 
     typer.echo(typer.style(f"◐ Reading {sourcelang} project from directory '{sourcedir}', with entrypoint '{sourceentry}'.", fg=typer.colors.BLUE))
     time.sleep(0.3)
@@ -85,12 +88,14 @@ def main(
 
     ''' 2. Migration '''
     if step in ['migrate', 'all']:
-        def migrate(sourcefile, globals):
+        target_deps_per_file = defaultdict(list) 
+        def migrate(sourcefile, globals, parent_file=None):
             # recursively work through each of the files in the source directory, starting with the entrypoint.
             internal_deps_list, external_deps_list = get_dependencies(sourcefile=sourcefile,globals=globals)
             for dependency in internal_deps_list:
-                migrate(dependency, globals)
-            write_migration(sourcefile, external_deps_list, globals)
+                migrate(dependency, globals, parent_file=sourcefile)
+            file_name = write_migration(sourcefile, external_deps_list, target_deps_per_file.get(sourcefile), globals)
+            target_deps_per_file[parent_file].append(file_name)
 
         migrate(sourceentry, globals)
         add_env_files(globals)
